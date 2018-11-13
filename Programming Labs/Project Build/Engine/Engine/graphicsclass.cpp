@@ -94,9 +94,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	// Initialize the light object.
 	m_Light->SetDiffuseColor(0.0f, 0.5f, 1.0f, 5.0f);
 	m_Light->SetDirection(1.0f, 0.0f, 1.0f);
-	m_Light->SetAmbientColor(0.5f, 0.5f, 0.0f, 1.0f);
-	m_Light->SetSpecularColor(0.0f, 1.0f, 0.0f, 1.0f);
-	m_Light->SetSpecularPower(32.0f);
+	m_Light->SetAmbientColor(0.0f, 0.5f, 0.0f, 1.0f);
+	m_Light->SetSpecularColor(1.0f, 0.0f, 0.0f, 1.0f);
+	m_Light->SetSpecularPower(16.0f);
 
 	return true;
 }

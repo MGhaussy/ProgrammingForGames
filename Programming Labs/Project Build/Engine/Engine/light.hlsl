@@ -65,7 +65,7 @@ PixelInputType LightVertexShader(VertexInputType input)
 	output.position.x += output.position.x * sin(delta / 4) * output.position.y *output.position.x * 2;
 	}
 	
-	output.position.y += output.position.y * sin(delta / 2) * output.position.z;// *output.position.y - 3;
+	output.position.y += output.position.y * sin(delta / 2) * output.position.z;
 	
     
 	// Store the texture coordinates for the pixel shader.

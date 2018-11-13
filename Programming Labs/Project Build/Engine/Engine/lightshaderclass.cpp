@@ -416,6 +416,33 @@ bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D
 	// Now set the constant buffer in the vertex shader with the updated values.
     deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
+	
+	////VARIABLE BUFFER
+	//result = deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	//if(FAILED(result))
+	//{
+	//	return false;
+	//}
+	//
+	//// Get a pointer to the data in the constant buffer.
+	//dataPtr3 = (VariableBufferType*)mappedResource.pData;
+
+	//// Copy the variable buffer.
+	//dataPtr3->delta = deltavalue;
+	//D3DXVECTOR3 paddington = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	//dataPtr3->padding2 =paddington; //this is just padding so this data isnt used.
+
+	//// Unlock the variable constant buffer.
+	//deviceContext->Unmap(m_variableBuffer, 0);
+
+	//// Set the position of the variable constant buffer in the vertex shader.
+	//bufferNumber = 1;
+
+	//// Now set the variable constant buffer in the vertex shader with the updated values.
+	//deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_variableBuffer);
+
+	////END VARIABLE BUFFER
+
 	// Lock the camera constant buffer so it can be written to.
 	result = deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
@@ -433,37 +460,11 @@ bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D
 	// Unlock the camera constant buffer.
 	deviceContext->Unmap(m_cameraBuffer, 0);
 
-	//VARIABLE BUFFER
-	result = deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if(FAILED(result))
-	{
-		return false;
-	}
-	
-	// Get a pointer to the data in the constant buffer.
-	dataPtr3 = (VariableBufferType*)mappedResource.pData;
-
-	// Copy the variablethe constant buffer.
-	dataPtr3->delta = deltavalue;
-	dataPtr3->padding2 =lightDirection; //this is just padding so this data isnt used.
-
-	// Unlock the variable constant buffer.
-	deviceContext->Unmap(m_variableBuffer, 0);
-
-	// Set the position of the variable constant buffer in the vertex shader.
-	bufferNumber = 1;
-
-	// Now set the variable constant buffer in the vertex shader with the updated values.
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_variableBuffer);
-
-	//END VARIABLE BUFFER
-
 	// Set the position of the camera constant buffer in the vertex shader.
 	bufferNumber = 2;
 
 	// Now set the camera constant buffer in the vertex shader with the updated values.
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_cameraBuffer);
-
 
 	// Lock the light constant buffer so it can be written to.
 	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
