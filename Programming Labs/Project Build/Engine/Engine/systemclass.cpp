@@ -134,6 +134,13 @@ void SystemClass::Run()
 			done = true;
 		}
 
+		if (m_Input->CameraLeftRight() != 0 || m_Input->CameraFrontBack() != 0 || m_Input->CameraRotateY() != 0)
+		{
+			float changerX = m_Input->CameraLeftRight();
+			float changerZ = m_Input->CameraFrontBack();
+			float rotatorY = m_Input->CameraRotateY();
+			m_Graphics->ChangeCamera(changerX, changerZ, rotatorY);
+		}
 
 	}
 

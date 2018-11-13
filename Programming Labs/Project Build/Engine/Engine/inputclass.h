@@ -40,6 +40,9 @@ public:
 
 	bool IsEscapePressed();
 	void GetMouseLocation(int&, int&);
+	float CameraLeftRight();
+	float CameraFrontBack();
+	float CameraRotateY();
 
 private:
 	bool ReadKeyboard();

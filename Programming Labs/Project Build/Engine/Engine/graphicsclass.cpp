@@ -215,3 +215,14 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 
 	return true;
 }
+
+void GraphicsClass::ChangeCamera(float changeX, float changeZ, float rotatorY)
+{
+	D3DXVECTOR3 newPos = m_Camera->GetPosition();
+	newPos.x += changeX;
+	newPos.z += changeZ;
+	D3DXVECTOR3 newRot = m_Camera->GetRotation();
+	newRot.y += rotatorY;
+	m_Camera->SetPosition(newPos.x, newPos.y, newPos.z);
+	m_Camera->SetRotation(newRot.x, newRot.y, newRot.z);
+}

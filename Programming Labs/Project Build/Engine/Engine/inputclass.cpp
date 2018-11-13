@@ -233,6 +233,45 @@ bool InputClass::IsEscapePressed()
 	return false;
 }
 
+float InputClass::CameraLeftRight()
+{
+	if (m_keyboardState[DIK_A] & 0x80)
+	{
+		return -1.0f;
+	}
+	if (m_keyboardState[DIK_D] & 0x80)
+	{
+		return 1.0f;
+	}
+	return 0;
+}
+
+float InputClass::CameraFrontBack()
+{
+	if (m_keyboardState[DIK_S] & 0x80)
+	{
+		return -1.0f;
+	}
+	if (m_keyboardState[DIK_W] & 0x80)
+	{
+		return 1.0f;
+	}
+	return 0;
+}
+
+float InputClass::CameraRotateY()
+{
+	if (m_keyboardState[DIK_Q] & 0x80)
+	{
+		return -1.0f;
+	}
+	if (m_keyboardState[DIK_E] & 0x80)
+	{
+		return 1.0f;
+	}
+	return 0;
+}
+
 
 void InputClass::GetMouseLocation(int& mouseX, int& mouseY)
 {
