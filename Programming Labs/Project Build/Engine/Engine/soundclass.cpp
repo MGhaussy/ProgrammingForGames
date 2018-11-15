@@ -8,6 +8,7 @@ SoundClass::SoundClass()
 	m_DirectSound = 0;
 	m_primaryBuffer = 0;
 	m_secondaryBuffer1 = 0;
+	m_secondaryBuffer2 = 0;
 }
 
 
@@ -34,6 +35,13 @@ bool SoundClass::Initialize(HWND hwnd)
 
 	// Load a wave audio file onto a secondary buffer.
 	result = LoadWaveFile("../Engine/data/rainforest_ambience.wav", &m_secondaryBuffer1);
+	if (!result)
+	{
+		return false;
+	}
+
+	// Load a wave audio file onto a secondary buffer.
+	result = LoadWaveFile("../Engine/data/footsteps.wav", &m_secondaryBuffer2);
 	if (!result)
 	{
 		return false;
@@ -190,11 +198,11 @@ bool SoundClass::LoadWaveFile(char* filename, IDirectSoundBuffer8** secondaryBuf
 		return false;
 	}
 
-	// Check that the wave file was recorded in stereo format.
-	if (waveFileHeader.numChannels != 2)
-	{
-		return false;
-	}
+	//// Check that the wave file was recorded in stereo format.
+	//if (waveFileHeader.numChannels != 2)
+	//{
+	//	return false;
+	//}
 
 	//// Check that the wave file was recorded at a sample rate of 44.1 KHz.
 	//if (waveFileHeader.sampleRate != 44100)
@@ -323,17 +331,61 @@ bool SoundClass::PlayWaveFile()
 	}
 
 	// Set volume of the buffer to 100%.
-	result = m_secondaryBuffer1->SetVolume(DSBVOLUME_MAX);
+	result = m_secondaryBuffer1->SetVolume(DSBVOLUME_MAX - 2000);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
 	// Play the contents of the secondary sound buffer.
-	result = m_secondaryBuffer1->Play(0, 0, 0);
+	result = m_secondaryBuffer1->Play(0, 0, DSBPLAY_LOOPING);
 	if (FAILED(result))
 	{
 		return false;
+	}
+
+	// Set position at the beginning of the sound buffer.
+	result = m_secondaryBuffer2->SetCurrentPosition(0);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Set volume of the buffer to 0%.
+	result = m_secondaryBuffer2->SetVolume(DSBVOLUME_MIN);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Play the contents of the secondary sound buffer.
+	result = m_secondaryBuffer2->Play(0, 0, DSBPLAY_LOOPING);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool SoundClass::SetFootstepVolume(int volume)
+{
+	HRESULT result;
+	if (volume == 0)
+	{
+		result = m_secondaryBuffer2->SetVolume(DSBVOLUME_MIN);
+		if (FAILED(result))
+		{
+			return false;
+		}
+	}
+	if (volume == 1)
+	{
+		result = m_secondaryBuffer2->SetVolume(DSBVOLUME_MAX);
+		if (FAILED(result))
+		{
+			return false;
+		}
 	}
 
 	return true;

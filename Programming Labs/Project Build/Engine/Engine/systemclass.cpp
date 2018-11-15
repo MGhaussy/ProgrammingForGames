@@ -158,12 +158,18 @@ void SystemClass::Run()
 			done = true;
 		}
 
+		// Check if the user is moving the camera. Turn on footstep noise if moving.
 		if (m_Input->CameraLeftRight() != 0 || m_Input->CameraFrontBack() != 0 || m_Input->CameraRotateY() != 0)
 		{
 			float changerX = m_Input->CameraLeftRight();
 			float changerZ = m_Input->CameraFrontBack();
 			float rotatorY = m_Input->CameraRotateY();
 			m_Graphics->ChangeCamera(changerX, changerZ, rotatorY);
+			m_Sound->SetFootstepVolume(1);
+		}
+		else
+		{
+			m_Sound->SetFootstepVolume(0);
 		}
 
 	}

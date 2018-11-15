@@ -50,6 +50,7 @@ public:
 
 	bool Initialize(HWND);
 	void Shutdown();
+	bool SetFootstepVolume(int volume);
 
 private:
 	bool InitializeDirectSound(HWND);
@@ -64,6 +65,7 @@ private:
 	IDirectSound8 * m_DirectSound;
 	IDirectSoundBuffer* m_primaryBuffer;
 	IDirectSoundBuffer8* m_secondaryBuffer1;
+	IDirectSoundBuffer8* m_secondaryBuffer2;
 };
 
 #endif
