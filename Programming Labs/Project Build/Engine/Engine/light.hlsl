@@ -60,13 +60,13 @@ PixelInputType LightVertexShader(VertexInputType input)
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
 
-	if (output.position.x > 0.2f)
+	/*if (output.position.x > 0.2f)
 	{
 	output.position.x += output.position.x * sin(delta / 4) * output.position.y *output.position.x * 2;
 	}
 	
 	output.position.y += output.position.y * sin(delta / 2) * output.position.z;
-	
+	*/
     
 	// Store the texture coordinates for the pixel shader.
 	output.tex = input.tex;

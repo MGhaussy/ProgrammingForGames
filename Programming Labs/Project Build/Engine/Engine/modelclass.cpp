@@ -325,3 +325,15 @@ void ModelClass::ReleaseTexture()
 
 	return;
 }
+
+void ModelClass::SetPosition(float x, float y, float z)
+{
+	m_xpos = x;
+	m_ypos = y;
+	m_zpos = z;
+}
+
+D3DXVECTOR3 ModelClass::GetPosition()
+{
+	return D3DXVECTOR3(m_xpos, m_ypos, m_zpos);
+}

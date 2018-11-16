@@ -13,6 +13,7 @@
 #include "modelclass.h"
 #include "lightshaderclass.h"
 #include "lightclass.h"
+#include <math.h>
 
 
 /////////////
@@ -45,7 +46,7 @@ private:
 private:
 	D3DClass* m_D3D;
 	CameraClass* m_Camera;
-	ModelClass* m_Model;
+	ModelClass *m_Model, *m_Model2;
 	LightShaderClass* m_LightShader;
 	LightClass* m_Light;
 };

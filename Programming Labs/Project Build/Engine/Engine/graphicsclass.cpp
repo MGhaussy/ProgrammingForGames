@@ -9,6 +9,7 @@ GraphicsClass::GraphicsClass()
 	m_D3D = 0;
 	m_Camera = 0;
 	m_Model = 0;
+	m_Model2 = 0;
 	m_LightShader = 0;
 	m_Light = 0;
 }
@@ -68,6 +69,23 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
+	m_Model->SetPosition(1.0f, 1.0f, 2.0f);
+
+	// Create the model object.
+	m_Model2 = new ModelClass;
+	if (!m_Model2)
+	{
+		return false;
+	}
+
+	// Initialize the model object.
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../Engine/data/tree.txt", L"../Engine/data/seafloor.dds");
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		return false;
+	}
+	m_Model2->SetPosition(-1.0f, -2.0f, 0.0f);
 
 	// Create the light shader object.
 	m_LightShader = new LightShaderClass;
@@ -182,6 +200,7 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 {
 	D3DXMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	bool result;
+	float xPos, yPos, zPos;
 
 
 	// Clear the buffers to begin the scene.
@@ -198,6 +217,11 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 	// Rotate the world matrix by the rotation value so that the triangle will spin.
 	D3DXMatrixRotationYawPitchRoll(&worldMatrix, rotation, rotation, rotation);
 
+	D3DXVECTOR3 tempvec = m_Model->GetPosition();
+	xPos = tempvec.x;
+	yPos = tempvec.y;
+	zPos = tempvec.z;
+	D3DXMatrixTranslation(&worldMatrix, xPos, yPos, zPos);
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Model->Render(m_D3D->GetDeviceContext());
 
@@ -210,6 +234,23 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 		return false;
 	}
 
+	D3DXVECTOR3 tempvec2 = m_Model2->GetPosition();
+	xPos = tempvec2.x;
+	yPos = tempvec2.y;
+	zPos = tempvec2.z;
+	D3DXMatrixTranslation(&worldMatrix, xPos, yPos, zPos);
+	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	m_Model2->Render(m_D3D->GetDeviceContext());
+
+	// Render the model using the light shader.
+	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
+		m_Model2->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+	if (!result)
+	{
+		return false;
+	}
+
 	// Present the rendered scene to the screen.
 	m_D3D->EndScene();
 
@@ -218,11 +259,16 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 
 void GraphicsClass::ChangeCamera(float changeX, float changeZ, float rotatorY)
 {
-	D3DXVECTOR3 newPos = m_Camera->GetPosition();
-	newPos.x += changeX;
-	newPos.z += changeZ;
 	D3DXVECTOR3 newRot = m_Camera->GetRotation();
 	newRot.y += rotatorY;
-	m_Camera->SetPosition(newPos.x, newPos.y, newPos.z);
 	m_Camera->SetRotation(newRot.x, newRot.y, newRot.z);
+	float radians;
+	D3DXVECTOR3 newPos = m_Camera->GetPosition();
+	radians = m_Camera->GetRotation().y * 0.0174532925f;
+	newPos.x += cosf(radians) * changeX;
+	newPos.z += -sinf(radians) * changeX;
+	newPos.x += sinf(radians) * changeZ;
+	newPos.z += cosf(radians) * changeZ;
+	m_Camera->SetPosition(newPos.x, newPos.y, newPos.z);
+	
 }
