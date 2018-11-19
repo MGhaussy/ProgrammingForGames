@@ -79,7 +79,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model2->Initialize(m_D3D->GetDevice(), "../Engine/data/tree.txt", L"../Engine/data/seafloor.dds");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../Engine/data/Tree/tree.txt", L"../Engine/Tree/Tree/tree.mtl");
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -110,9 +110,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the light object.
-	m_Light->SetDiffuseColor(0.0f, 0.5f, 1.0f, 5.0f);
+	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 5.0f);
 	m_Light->SetDirection(1.0f, 0.0f, 1.0f);
-	m_Light->SetAmbientColor(0.0f, 0.5f, 0.0f, 1.0f);
+	m_Light->SetAmbientColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetSpecularColor(1.0f, 0.0f, 0.0f, 1.0f);
 	m_Light->SetSpecularPower(16.0f);
 
