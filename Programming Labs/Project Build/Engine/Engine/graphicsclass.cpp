@@ -12,6 +12,7 @@ GraphicsClass::GraphicsClass()
 	m_Model2 = 0;
 	m_LightShader = 0;
 	m_Light = 0;
+	m_SkyDome = 0;
 }
 
 
@@ -116,12 +117,36 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Light->SetSpecularColor(1.0f, 0.0f, 0.0f, 1.0f);
 	m_Light->SetSpecularPower(16.0f);
 
+	// Create the sky dome object.
+	m_SkyDome = new ModelClass;
+	if (!m_SkyDome)
+	{
+		return false;
+	}
+
+	// Initialize the sky dome object.
+	result = m_SkyDome->Initialize(m_D3D->GetDevice(), "../Engine/data/skydome.txt", L"../Engine/data/SunSet/SunSetFront2048.png");
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the sky dome object.", L"Error", MB_OK);
+		return false;
+	}
+
+
 	return true;
 }
 
 
 void GraphicsClass::Shutdown()
 {
+	// Release the sky dome object.
+	if (m_SkyDome)
+	{
+		m_SkyDome->Shutdown();
+		delete m_SkyDome;
+		m_SkyDome = 0;
+	}
+
 	// Release the light object.
 	if(m_Light)
 	{
@@ -199,6 +224,7 @@ bool GraphicsClass::Frame()
 bool GraphicsClass::Render(float rotation, float deltavalue)
 {
 	D3DXMATRIX worldMatrix, viewMatrix, projectionMatrix;
+	D3DXVECTOR3 cameraPosition;
 	bool result;
 	float xPos, yPos, zPos;
 
@@ -213,6 +239,34 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_D3D->GetWorldMatrix(worldMatrix);
 	m_D3D->GetProjectionMatrix(projectionMatrix);
+
+	// Get the position of the camera.
+	cameraPosition = m_Camera->GetPosition();
+
+	// Translate the sky dome to be centered around the camera position.
+	D3DXMatrixTranslation(&worldMatrix, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+
+	// Turn off back face culling.
+	m_D3D->TurnOffCulling();
+
+	// Turn off the Z buffer.
+	m_D3D->TurnZBufferOff();
+
+	// Render the sky dome using the sky dome shader.
+	m_SkyDome->Render(m_D3D->GetDeviceContext());
+
+	m_LightShader->Render(m_D3D->GetDeviceContext(), m_SkyDome->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
+		m_SkyDome->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+
+	// Turn back face culling back on.
+	m_D3D->TurnOnCulling();
+
+	// Turn the Z buffer back on.
+	m_D3D->TurnZBufferOn();
+
+	// Reset the world matrix.
+	m_D3D->GetWorldMatrix(worldMatrix);
 
 	// Rotate the world matrix by the rotation value so that the triangle will spin.
 	D3DXMatrixRotationYawPitchRoll(&worldMatrix, rotation, rotation, rotation);

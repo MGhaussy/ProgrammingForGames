@@ -81,6 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="C:\Users\1805270\Downloads\tersrc10\tersrc10\source\skydomeclass.cpp" />
     <ClCompile Include="cameraclass.cpp" />
     <ClCompile Include="d3dclass.cpp" />
     <ClCompile Include="graphicsclass.cpp" />
@@ -95,6 +96,7 @@
     <ClCompile Include="textureclass.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="C:\Users\1805270\Downloads\tersrc10\tersrc10\source\skydomeclass.h" />
     <ClInclude Include="cameraclass.h" />
     <ClInclude Include="d3dclass.h" />
     <ClInclude Include="graphicsclass.h" />
