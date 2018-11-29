@@ -51,7 +51,7 @@
     <ClCompile Include="soundclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\1805270\Downloads\tersrc10\tersrc10\source\skydomeclass.cpp">
+    <ClCompile Include="treeclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,7 +89,7 @@
     <ClInclude Include="soundclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\1805270\Downloads\tersrc10\tersrc10\source\skydomeclass.h">
+    <ClInclude Include="treeclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

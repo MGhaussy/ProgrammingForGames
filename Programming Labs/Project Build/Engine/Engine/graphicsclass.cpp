@@ -13,6 +13,7 @@ GraphicsClass::GraphicsClass()
 	m_LightShader = 0;
 	m_Light = 0;
 	m_SkyDome = 0;
+	m_Tree = 0;
 }
 
 
@@ -64,13 +65,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), "../Engine/data/floor.txt", L"../Engine/data/seafloor.dds");
+	result = m_Model->Initialize(m_D3D->GetDevice(), "../Engine/data/Tree_Leaves.txt", L"../Engine/data/Leaf_UV.jpg");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
-	m_Model->SetPosition(1.0f, 1.0f, 2.0f);
+	m_Model->SetPosition(0.0f, -1.0f, 2.0f);
 
 	// Create the model object.
 	m_Model2 = new ModelClass;
@@ -80,13 +81,28 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 	
 	// Initialize the model object.
-	result = m_Model2->Initialize(m_D3D->GetDevice(), "../Engine/data/Tree/tree.txt", L"../Engine/data/seafloor.dds");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../Engine/data/Tree_Trunk.txt", L"../Engine/data/bark_0021.jpg");
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
-	m_Model2->SetPosition(-1.0f, -2.0f, 0.0f);
+	m_Model2->SetPosition(0.0f, -1.0f, 20.0f);
+
+	// Create the tree object.
+	m_Tree = new TreeClass;
+	if (!m_Tree)
+	{
+		return false;
+	}
+
+	// Initialize the model object.
+	result = m_Tree->Initialize(m_D3D->GetDevice(), hwnd, 2.0f, -1.0f, 2.0f);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the tree object.", L"Error", MB_OK);
+		return false;
+	}
 
 	// Create the light shader object.
 	m_LightShader = new LightShaderClass;
@@ -168,6 +184,22 @@ void GraphicsClass::Shutdown()
 		m_Model->Shutdown();
 		delete m_Model;
 		m_Model = 0;
+	}
+
+	// Release the model object.
+	if (m_Model2)
+	{
+		m_Model2->Shutdown();
+		delete m_Model2;
+		m_Model2 = 0;
+	}
+
+	// Release the tree object.
+	if (m_Tree)
+	{
+		m_Tree->Shutdown();
+		delete m_Tree;
+		m_Tree = 0;
 	}
 
 	// Release the camera object.
@@ -269,7 +301,7 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 	m_D3D->GetWorldMatrix(worldMatrix);
 
 	// Rotate the world matrix by the rotation value so that the triangle will spin.
-	D3DXMatrixRotationYawPitchRoll(&worldMatrix, rotation, rotation, rotation);
+	// D3DXMatrixRotationYawPitchRoll(&worldMatrix, rotation, rotation, rotation);
 
 	D3DXVECTOR3 tempvec = m_Model->GetPosition();
 	xPos = tempvec.x;
@@ -300,6 +332,24 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
 		m_Model2->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+	if (!result)
+	{
+		return false;
+	}
+
+	ModelClass* trunk = m_Tree->GetTrunk();
+	D3DXVECTOR3 tempvec3 = trunk->GetPosition();
+	xPos = tempvec3.x;
+	yPos = tempvec3.y;
+	zPos = tempvec3.z;
+	D3DXMatrixTranslation(&worldMatrix, xPos, yPos, zPos);
+	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	trunk->Render(m_D3D->GetDeviceContext());
+
+	// Render the model using the light shader.
+	result = m_LightShader->Render(m_D3D->GetDeviceContext(), trunk->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
+		trunk->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 	if (!result)
 	{
 		return false;
