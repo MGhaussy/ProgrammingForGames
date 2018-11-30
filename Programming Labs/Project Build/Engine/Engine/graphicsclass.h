@@ -14,6 +14,7 @@
 #include "lightshaderclass.h"
 #include "lightclass.h"
 #include "treeclass.h"
+#include "treeshaderclass.h"
 #include <math.h>
 
 
@@ -52,6 +53,7 @@ private:
 	LightClass* m_Light;
 	ModelClass* m_SkyDome;
 	TreeClass* m_Tree;
+	TreeShaderClass* m_TreeShader;
 };
 
 #endif
