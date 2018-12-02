@@ -355,6 +355,19 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 		return false;
 	}
 
+	ModelClass* leaves = m_Tree->GetLeaves();
+	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	leaves->Render(m_D3D->GetDeviceContext());
+
+	// Render the model using the light shader.
+	result = m_LightShader->Render(m_D3D->GetDeviceContext(), leaves->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
+		leaves->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+	if (!result)
+	{
+		return false;
+	}
+
 	// Present the rendered scene to the screen.
 	m_D3D->EndScene();
 
