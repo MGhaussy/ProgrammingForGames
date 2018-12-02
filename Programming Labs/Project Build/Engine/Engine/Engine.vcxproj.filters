@@ -54,9 +54,6 @@
     <ClCompile Include="treeclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="treeshaderclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cameraclass.h">
@@ -95,9 +92,6 @@
     <ClInclude Include="treeclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="treeshaderclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="light.ps">
@@ -106,13 +100,5 @@
     <None Include="light.hlsl">
       <Filter>Shader Files</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="TreeVS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="TreePS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>
