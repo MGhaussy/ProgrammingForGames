@@ -14,6 +14,7 @@ GraphicsClass::GraphicsClass()
 	m_Light = 0;
 	m_SkyDome = 0;
 	m_Tree = 0;
+	m_TreeShader = 0;
 }
 
 
@@ -96,7 +97,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	// Initialize the model object.
+	// Initialize the tree object.
 	result = m_Tree->Initialize(m_D3D->GetDevice(), hwnd, 2.0f, -1.0f, 2.0f);
 	if (!result)
 	{
@@ -116,6 +117,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the light shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Initialize the tree shader object.
+	result = m_TreeShader->Initialize(m_D3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the tree shader object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -176,6 +185,14 @@ void GraphicsClass::Shutdown()
 		m_LightShader->Shutdown();
 		delete m_LightShader;
 		m_LightShader = 0;
+	}
+
+	// Release the tree shader object.
+	if (m_TreeShader)
+	{
+		m_TreeShader->Shutdown();
+		delete m_TreeShader;
+		m_TreeShader = 0;
 	}
 
 	// Release the model object.
@@ -346,10 +363,18 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	trunk->Render(m_D3D->GetDeviceContext());
 
+	ModelClass* leaves = m_Tree->GetLeaves();
+	D3DXVECTOR3 tempvec4 = leaves->GetPosition();
+	xPos = tempvec4.x;
+	yPos = tempvec4.y;
+	zPos = tempvec4.z;
+	D3DXMatrixTranslation(&worldMatrix, xPos, yPos, zPos);
+	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	leaves->Render(m_D3D->GetDeviceContext());
+
 	// Render the model using the light shader.
-	result = m_LightShader->Render(m_D3D->GetDeviceContext(), trunk->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
-		trunk->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+	result = m_TreeShader->Render(m_D3D->GetDeviceContext(), m_Tree, worldMatrix, viewMatrix, projectionMatrix,
+		m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue, m_Camera->GetPosition());
 	if (!result)
 	{
 		return false;
