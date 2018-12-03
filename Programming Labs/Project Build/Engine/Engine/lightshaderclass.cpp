@@ -13,6 +13,7 @@ LightShaderClass::LightShaderClass()
 	m_matrixBuffer = 0;
 	m_cameraBuffer = 0;
 	m_lightBuffer = 0;
+	m_fogBuffer = 0;
 }
 
 
@@ -82,9 +83,9 @@ bool LightShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 	unsigned int numElements;
     D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC matrixBufferDesc;
-	D3D11_BUFFER_DESC variableBufferDesc;
 	D3D11_BUFFER_DESC cameraBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
+	D3D11_BUFFER_DESC fogBufferDesc;
 
 
 	// Initialize the pointers this function will use to null.
@@ -240,21 +241,6 @@ bool LightShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 		return false;
 	}
 
-	// Setup the description of the variable dynamic constant buffer that is in the vertex shader.
-	variableBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	variableBufferDesc.ByteWidth = sizeof(VariableBufferType);
-	variableBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	variableBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	variableBufferDesc.MiscFlags = 0;
-	variableBufferDesc.StructureByteStride = 0;
-
-	// Create the variable constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&variableBufferDesc, NULL, &m_variableBuffer);
-	if(FAILED(result))
-	{
-		return false;
-	}
-
 
 	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
 	// Note that ByteWidth always needs to be a multiple of 16 if using D3D11_BIND_CONSTANT_BUFFER or CreateBuffer will fail.
@@ -272,12 +258,34 @@ bool LightShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 		return false;
 	}
 
+	// Setup the description of the dynamic fog constant buffer that is in the vertex shader.
+	fogBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	fogBufferDesc.ByteWidth = sizeof(FogBufferType);
+	fogBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	fogBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	fogBufferDesc.MiscFlags = 0;
+	fogBufferDesc.StructureByteStride = 0;
+
+	// Create the fog buffer pointer so we can access the vertex shader fog constant buffer from within this class.
+	result = device->CreateBuffer(&fogBufferDesc, NULL, &m_fogBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
 	return true;
 }
 
 
 void LightShaderClass::ShutdownShader()
 {
+	// Release the fog constant buffer.
+	if (m_fogBuffer)
+	{
+		m_fogBuffer->Release();
+		m_fogBuffer = 0;
+	}
+	
 	// Release the light constant buffer.
 	if(m_lightBuffer)
 	{
@@ -292,12 +300,6 @@ void LightShaderClass::ShutdownShader()
 		m_cameraBuffer = 0;
 	}
 
-	// Release the variable constant buffer.
-	if(m_variableBuffer)
-	{
-		m_variableBuffer->Release();
-		m_variableBuffer = 0;
-	}
 	// Release the matrix constant buffer.
 	if(m_matrixBuffer)
 	{
@@ -382,8 +384,8 @@ bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D
     D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
 	MatrixBufferType* dataPtr;
+	FogBufferType* dataPtr3;
 	LightBufferType* dataPtr2;
-	VariableBufferType* dataPtr3;
 	CameraBufferType* dataPtr4;
 
 
@@ -417,31 +419,28 @@ bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D
     deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
 	
-	////VARIABLE BUFFER
-	//result = deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	//if(FAILED(result))
-	//{
-	//	return false;
-	//}
-	//
-	//// Get a pointer to the data in the constant buffer.
-	//dataPtr3 = (VariableBufferType*)mappedResource.pData;
+	// Lock the fog constant buffer so it can be written to.
+	result = deviceContext->Map(m_fogBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
 
-	//// Copy the variable buffer.
-	//dataPtr3->delta = deltavalue;
-	//D3DXVECTOR3 paddington = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	//dataPtr3->padding2 =paddington; //this is just padding so this data isnt used.
+	// Get a pointer to the data in the constant buffer.
+	dataPtr3 = (FogBufferType*)mappedResource.pData;
 
-	//// Unlock the variable constant buffer.
-	//deviceContext->Unmap(m_variableBuffer, 0);
+	// Copy the fog information into the fog constant buffer.
+	dataPtr3->fogStart = 0.0f;
+	dataPtr3->fogEnd = 10.0f;
 
-	//// Set the position of the variable constant buffer in the vertex shader.
-	//bufferNumber = 1;
+	// Unlock the constant buffer.
+	deviceContext->Unmap(m_fogBuffer, 0);
 
-	//// Now set the variable constant buffer in the vertex shader with the updated values.
-	//deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_variableBuffer);
+	// Set the position of the fog constant buffer in the vertex shader.
+	bufferNumber = 1;
 
-	////END VARIABLE BUFFER
+	// Now set the fog buffer in the vertex shader with the updated values.
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_fogBuffer);
 
 	// Lock the camera constant buffer so it can be written to.
 	result = deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

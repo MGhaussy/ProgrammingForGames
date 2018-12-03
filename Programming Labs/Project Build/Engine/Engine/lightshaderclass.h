@@ -28,16 +28,17 @@ private:
 		D3DXMATRIX projection;
 	};
 
-	struct VariableBufferType
-	{
-		float delta;
-		D3DXVECTOR3 padding2;
-	};
-
 	struct CameraBufferType
 	{
 		D3DXVECTOR3 cameraPosition;
 		float padding;
+	};
+
+	struct FogBufferType
+	{
+		float fogStart;
+		float fogEnd;
+		float padding1, padding2;
 	};
 
 	struct LightBufferType
@@ -72,9 +73,8 @@ private:
 	ID3D11InputLayout* m_layout;
 	ID3D11SamplerState* m_sampleState;
 	ID3D11Buffer* m_matrixBuffer;
-	ID3D11Buffer* m_variableBuffer;
 	ID3D11Buffer* m_cameraBuffer;
 	ID3D11Buffer* m_lightBuffer;
+	ID3D11Buffer* m_fogBuffer;
 };
-
 #endif

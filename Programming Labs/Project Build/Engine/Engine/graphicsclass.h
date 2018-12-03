@@ -15,6 +15,7 @@
 #include "lightclass.h"
 #include "treeclass.h"
 #include <math.h>
+#include <list>
 
 
 /////////////
@@ -52,6 +53,7 @@ private:
 	LightClass* m_Light;
 	ModelClass* m_SkyDome;
 	TreeClass* m_Tree;
+	list<TreeClass*> m_Trees;
 };
 
 #endif

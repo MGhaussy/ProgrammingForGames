@@ -14,6 +14,7 @@ GraphicsClass::GraphicsClass()
 	m_Light = 0;
 	m_SkyDome = 0;
 	m_Tree = 0;
+	m_Trees = {};
 }
 
 
@@ -55,7 +56,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Set the initial position of the camera.
-	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+	m_Camera->SetPosition(0.0f, 0.5f, -10.0f);
 	
 	// Create the model object.
 	m_Model = new ModelClass;
@@ -65,13 +66,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), "../Engine/data/Tree_Leaves.txt", L"../Engine/data/Leaf_UV.jpg");
+	result = m_Model->Initialize(m_D3D->GetDevice(), "../Engine/data/floor.txt", L"../Engine/data/forestfloor.jpg");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
-	m_Model->SetPosition(0.0f, -1.0f, 2.0f);
+	m_Model->SetPosition(0.0f, 0.0f, 2.0f);
 
 	// Create the model object.
 	m_Model2 = new ModelClass;
@@ -81,7 +82,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 	
 	// Initialize the model object.
-	result = m_Model2->Initialize(m_D3D->GetDevice(), "../Engine/data/Tree_Trunk.txt", L"../Engine/data/bark_0021.jpg");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../Engine/data/wall.txt", L"../Engine/data/wall.jpg");
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -130,7 +131,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 5.0f);
 	m_Light->SetDirection(1.0f, 0.0f, 1.0f);
 	m_Light->SetAmbientColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetSpecularColor(1.0f, 0.0f, 0.0f, 1.0f);
+	m_Light->SetSpecularColor(0.0f, 0.0f, 0.0f, 1.0f);
 	m_Light->SetSpecularPower(16.0f);
 
 	// Create the sky dome object.
@@ -147,7 +148,19 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the sky dome object.", L"Error", MB_OK);
 		return false;
 	}
-
+	
+	// Initialize the tree list.
+	for (int i = 0; i < 20; i++)
+	{
+		TreeClass* tree = new TreeClass;
+		m_Trees.push_back(tree);
+		result = tree->Initialize(m_D3D->GetDevice(), hwnd, i, 0.0f, i % 5);
+		if (!result)
+		{
+			MessageBox(hwnd, L"Could not initialize the tree object.", L"Error", MB_OK);
+			return false;
+		}
+	}
 
 	return true;
 }
@@ -217,6 +230,10 @@ void GraphicsClass::Shutdown()
 		m_D3D = 0;
 	}
 
+	// Releases the tree list.
+	m_Trees.clear();
+	m_Trees = {};
+	
 	return;
 }
 
@@ -276,8 +293,8 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 	cameraPosition = m_Camera->GetPosition();
 
 	// Translate the sky dome to be centered around the camera position.
+	
 	D3DXMatrixTranslation(&worldMatrix, cameraPosition.x, cameraPosition.y, cameraPosition.z);
-
 	// Turn off back face culling.
 	m_D3D->TurnOffCulling();
 
@@ -337,35 +354,70 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 		return false;
 	}
 
-	ModelClass* trunk = m_Tree->GetTrunk();
-	D3DXVECTOR3 tempvec3 = trunk->GetPosition();
-	xPos = tempvec3.x;
-	yPos = tempvec3.y;
-	zPos = tempvec3.z;
-	D3DXMatrixTranslation(&worldMatrix, xPos, yPos, zPos);
-	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	trunk->Render(m_D3D->GetDeviceContext());
+	//ModelClass* trunk = m_Tree->GetTrunk();
+	//D3DXVECTOR3 tempvec3 = trunk->GetPosition();
+	//xPos = tempvec3.x;
+	//yPos = tempvec3.y;
+	//zPos = tempvec3.z;
+	//D3DXMatrixTranslation(&worldMatrix, xPos, yPos, zPos);
+	//// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	//trunk->Render(m_D3D->GetDeviceContext());
 
-	// Render the model using the light shader.
-	result = m_LightShader->Render(m_D3D->GetDeviceContext(), trunk->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
-		trunk->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
-	if (!result)
+	//// Render the model using the light shader.
+	//result = m_LightShader->Render(m_D3D->GetDeviceContext(), trunk->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+	//	m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
+	//	trunk->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+	//if (!result)
+	//{
+	//	return false;
+	//}
+
+	//ModelClass* leaves = m_Tree->GetLeaves();
+	//// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	//leaves->Render(m_D3D->GetDeviceContext());
+
+	//// Render the model using the light shader.
+	//result = m_LightShader->Render(m_D3D->GetDeviceContext(), leaves->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+	//	m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
+	//	leaves->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+	/*if (!result)
 	{
 		return false;
-	}
+	}*/
 
-	ModelClass* leaves = m_Tree->GetLeaves();
-	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	leaves->Render(m_D3D->GetDeviceContext());
-
-	// Render the model using the light shader.
-	result = m_LightShader->Render(m_D3D->GetDeviceContext(), leaves->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
-		leaves->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
-	if (!result)
+	for (std::list<TreeClass*>::iterator it=m_Trees.begin(); it != m_Trees.end(); ++it)
 	{
-		return false;
+		TreeClass* tree = *it;
+		ModelClass* trunk = tree->GetTrunk();
+		D3DXVECTOR3 tempvec3 = trunk->GetPosition();
+		xPos = tempvec3.x;
+		yPos = tempvec3.y;
+		zPos = tempvec3.z;
+		D3DXMatrixTranslation(&worldMatrix, xPos, yPos, zPos);
+		// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+		trunk->Render(m_D3D->GetDeviceContext());
+
+		// Render the model using the light shader.
+		result = m_LightShader->Render(m_D3D->GetDeviceContext(), trunk->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+			m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
+			trunk->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+		if (!result)
+		{
+			return false;
+		}
+
+		ModelClass* leaves = tree->GetLeaves();
+		// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+		leaves->Render(m_D3D->GetDeviceContext());
+
+		// Render the model using the light shader.
+		result = m_LightShader->Render(m_D3D->GetDeviceContext(), leaves->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+			m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
+			leaves->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+		if (!result)
+		{
+			return false;
+		}
 	}
 
 	// Present the rendered scene to the screen.
