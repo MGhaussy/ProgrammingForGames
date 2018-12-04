@@ -14,6 +14,9 @@
 #include "lightshaderclass.h"
 #include "lightclass.h"
 #include "treeclass.h"
+#include "rendertextureclass.h"
+#include "shadowshaderclass.h"
+#include "depthshaderclass.h"
 #include <math.h>
 #include <list>
 
@@ -25,6 +28,9 @@ const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
+
+const int SHADOWMAP_WIDTH = 1024;
+const int SHADOWMAP_HEIGHT = 1024;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,6 +49,7 @@ public:
 	void ChangeCamera(float, float, float);
 
 private:
+	bool RenderSceneToTexture();
 	bool Render(float, float);
 
 private:
@@ -54,6 +61,8 @@ private:
 	ModelClass* m_SkyDome;
 	TreeClass* m_Tree;
 	list<TreeClass*> m_Trees;
+	RenderTextureClass* m_RenderTexture;
+	ShadowShaderClass* m_ShadowShader;
+	DepthShaderClass* m_DepthShader;
 };
-
 #endif
