@@ -83,7 +83,6 @@
   <ItemGroup>
     <ClCompile Include="cameraclass.cpp" />
     <ClCompile Include="d3dclass.cpp" />
-    <ClCompile Include="depthshaderclass.cpp" />
     <ClCompile Include="graphicsclass.cpp" />
     <ClCompile Include="inputclass.cpp" />
     <ClCompile Include="lightclass.cpp" />
@@ -91,7 +90,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="modelclass.cpp" />
     <ClCompile Include="rendertextureclass.cpp" />
-    <ClCompile Include="shadowshaderclass.cpp" />
     <ClCompile Include="soundclass.cpp" />
     <ClCompile Include="systemclass.cpp" />
     <ClCompile Include="textureclass.cpp" />
@@ -100,26 +98,20 @@
   <ItemGroup>
     <ClInclude Include="cameraclass.h" />
     <ClInclude Include="d3dclass.h" />
-    <ClInclude Include="depthshaderclass.h" />
     <ClInclude Include="graphicsclass.h" />
     <ClInclude Include="inputclass.h" />
     <ClInclude Include="lightclass.h" />
     <ClInclude Include="lightshaderclass.h" />
     <ClInclude Include="modelclass.h" />
     <ClInclude Include="rendertextureclass.h" />
-    <ClInclude Include="shadowshaderclass.h" />
     <ClInclude Include="soundclass.h" />
     <ClInclude Include="systemclass.h" />
     <ClInclude Include="textureclass.h" />
     <ClInclude Include="treeclass.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="depth.ps" />
-    <None Include="depth.vs" />
     <None Include="light.ps" />
     <None Include="light.hlsl" />
-    <None Include="shadow.ps" />
-    <None Include="shadow.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

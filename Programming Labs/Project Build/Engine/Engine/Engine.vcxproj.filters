@@ -54,12 +54,6 @@
     <ClCompile Include="treeclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shadowshaderclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="depthshaderclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cameraclass.h">
@@ -98,30 +92,12 @@
     <ClInclude Include="treeclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="shadowshaderclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="depthshaderclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="light.ps">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="light.hlsl">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shadow.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shadow.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="depth.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="depth.vs">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

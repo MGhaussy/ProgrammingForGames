@@ -15,9 +15,6 @@ GraphicsClass::GraphicsClass()
 	m_SkyDome = 0;
 	m_Tree = 0;
 	m_Trees = {};
-	m_RenderTexture = 0;
-	m_ShadowShader = 0;
-	m_DepthShader = 0;
 }
 
 
@@ -165,51 +162,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		}
 	}
 
-	// Create the render to texture object.
-	m_RenderTexture = new RenderTextureClass;
-	if (!m_RenderTexture)
-	{
-		return false;
-	}
-
-	// Initialize the render to texture object.
-	result = m_RenderTexture->Initialize(m_D3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, SCREEN_DEPTH, SCREEN_NEAR);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
-		return false;
-	}
-
-	// Create the shadow shader object.
-	m_ShadowShader = new ShadowShaderClass;
-	if (!m_ShadowShader)
-	{
-		return false;
-	}
-
-	// Initialize the shadow shader object.
-	result = m_ShadowShader->Initialize(m_D3D->GetDevice(), hwnd);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the shadow shader object.", L"Error", MB_OK);
-		return false;
-	}
-
-	// Create the depth shader object.
-	m_DepthShader = new DepthShaderClass;
-	if (!m_DepthShader)
-	{
-		return false;
-	}
-
-	// Initialize the depth shader object.
-	result = m_DepthShader->Initialize(m_D3D->GetDevice(), hwnd);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK);
-		return false;
-	}
-
 	return true;
 }
 
@@ -222,30 +174,6 @@ void GraphicsClass::Shutdown()
 		m_SkyDome->Shutdown();
 		delete m_SkyDome;
 		m_SkyDome = 0;
-	}
-
-	// Release the depth shader object.
-	if (m_DepthShader)
-	{
-		m_DepthShader->Shutdown();
-		delete m_DepthShader;
-		m_DepthShader = 0;
-	}
-
-	// Release the shadow shader object.
-	if (m_ShadowShader)
-	{
-		m_ShadowShader->Shutdown();
-		delete m_ShadowShader;
-		m_ShadowShader = 0;
-	}
-
-	// Release the render to texture object.
-	if (m_RenderTexture)
-	{
-		m_RenderTexture->Shutdown();
-		delete m_RenderTexture;
-		m_RenderTexture = 0;
 	}
 
 	// Release the light object.
@@ -315,7 +243,6 @@ bool GraphicsClass::Frame()
 	bool result;
 	static float rotation = 0.0f;
 	static float delta =0.0f;
-	static float lightPositionX = -5.0f;
 
 
 	// Update the rotation variable each frame.
@@ -331,16 +258,6 @@ bool GraphicsClass::Frame()
 	{
 		delta -=1.0f;
 	}
-
-	// Update the position of the light each frame.
-	lightPositionX += 0.05f;
-	if (lightPositionX > 5.0f)
-	{
-		lightPositionX = -5.0f;
-	}
-
-	// Update the position of the light.
-	m_Light->SetPosition(lightPositionX, 8.0f, -5.0f);
 	
 	// Render the graphics scene.
 	result = Render(rotation, delta);
@@ -352,125 +269,14 @@ bool GraphicsClass::Frame()
 	return true;
 }
 
-bool GraphicsClass::RenderSceneToTexture()
-{
-	D3DXMATRIX worldMatrix, lightViewMatrix, lightProjectionMatrix, translateMatrix;
-	float posX, posY, posZ;
-	bool result;
-
-	// Set the render target to be the render to texture.
-	m_RenderTexture->SetRenderTarget(m_D3D->GetDeviceContext());
-
-	// Clear the render to texture.
-	m_RenderTexture->ClearRenderTarget(m_D3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
-
-	// Generate the light view matrix based on the light's position.
-	m_Light->GenerateViewMatrix();
-
-	// Get the world matrix from the d3d object.
-	m_D3D->GetWorldMatrix(worldMatrix);
-
-	// Get the view and orthographic matrices from the light object.
-	m_Light->GetViewMatrix(lightViewMatrix);
-	m_Light->GetProjectionMatrix(lightProjectionMatrix);
-
-	for (std::list<TreeClass*>::iterator it = m_Trees.begin(); it != m_Trees.end(); ++it)
-	{
-		TreeClass* tree = *it;
-		ModelClass* trunk = tree->GetTrunk();
-		// Setup the translation matrix for the tree model.
-		D3DXVECTOR3 tempvec = trunk->GetPosition();
-		posX = tempvec.x;
-		posY = tempvec.y;
-		posZ = tempvec.z;
-		D3DXMatrixTranslation(&worldMatrix, posX, posY, posZ);
-
-		// Render the tree model with the depth shader.
-		trunk->Render(m_D3D->GetDeviceContext());
-		result = m_DepthShader->Render(m_D3D->GetDeviceContext(), trunk->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
-		if (!result)
-		{
-			return false;
-		}
-
-		// Reset the world matrix.
-		m_D3D->GetWorldMatrix(worldMatrix);
-
-		ModelClass* leaves = tree->GetLeaves();
-		tempvec = leaves->GetPosition();
-		posX = tempvec.x;
-		posY = tempvec.y;
-		posZ = tempvec.z;
-		D3DXMatrixTranslation(&worldMatrix, posX, posY, posZ);
-
-		// Render the tree model with the depth shader.
-		leaves->Render(m_D3D->GetDeviceContext());
-		result = m_DepthShader->Render(m_D3D->GetDeviceContext(), leaves->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
-		if (!result)
-		{
-			return false;
-		}
-
-		// Reset the world matrix.
-		m_D3D->GetWorldMatrix(worldMatrix);
-	}
-	// Setup the translation matrix for the sphere model.
-	D3DXVECTOR3 temp = m_Model->GetPosition();
-	posX = temp.x;
-	posY = temp.y;
-	posZ = temp.z;
-	D3DXMatrixTranslation(&worldMatrix, posX, posY, posZ);
-
-	// Render the sphere model with the depth shader.
-	m_Model->Render(m_D3D->GetDeviceContext());
-	result = m_DepthShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
-	if (!result)
-	{
-		return false;
-	}
-
-	// Reset the world matrix.
-	m_D3D->GetWorldMatrix(worldMatrix);
-
-	// Setup the translation matrix for the ground model.
-	temp = m_Model2->GetPosition();
-	posX = temp.x;
-	posY = temp.y;
-	posZ = temp.z;
-	D3DXMatrixTranslation(&worldMatrix, posX, posY, posZ);
-
-	// Render the ground model with the depth shader.
-	m_Model2->Render(m_D3D->GetDeviceContext());
-	result = m_DepthShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, lightViewMatrix, lightProjectionMatrix);
-	if (!result)
-	{
-		return false;
-	}
-
-	// Reset the render target back to the original back buffer and not the render to texture anymore.
-	m_D3D->SetBackBufferRenderTarget();
-
-	// Reset the viewport back to the original.
-	m_D3D->ResetViewport();
-
-	return true;
-}
-
 
 bool GraphicsClass::Render(float rotation, float deltavalue)
 {
 	D3DXMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	D3DXVECTOR3 cameraPosition;
-	D3DXMATRIX lightViewMatrix, lightProjectionMatrix;
 	bool result;
 	float xPos, yPos, zPos;
 
-	// First render the scene to a texture.
-	result = RenderSceneToTexture();
-	if (!result)
-	{
-		return false;
-	}
 
 	// Clear the buffers to begin the scene.
 	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -478,17 +284,10 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 	// Generate the view matrix based on the camera's position.
 	m_Camera->Render();
 
-	// Generate the light view matrix based on the light's position.
-	m_Light->GenerateViewMatrix();
-
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_D3D->GetWorldMatrix(worldMatrix);
 	m_D3D->GetProjectionMatrix(projectionMatrix);
-
-	// Get the light's view and projection matrices from the light object.
-	m_Light->GetViewMatrix(lightViewMatrix);
-	m_Light->GetProjectionMatrix(lightProjectionMatrix);
 
 	// Get the position of the camera.
 	cameraPosition = m_Camera->GetPosition();
@@ -530,8 +329,9 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 	m_Model->Render(m_D3D->GetDeviceContext());
 
 	// Render the model using the light shader.
-	result = m_ShadowShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		lightViewMatrix, lightProjectionMatrix,  m_Model->GetTexture(), m_RenderTexture->GetShaderResourceView(), m_Light->GetPosition(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
+	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+								    m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
+								m_Model->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 	if(!result)
 	{
 		return false;
@@ -546,8 +346,9 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 	m_Model2->Render(m_D3D->GetDeviceContext());
 
 	// Render the model using the light shader.
-	result = m_ShadowShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		lightViewMatrix, lightProjectionMatrix, m_Model2->GetTexture(), m_RenderTexture->GetShaderResourceView(), m_Light->GetPosition(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
+	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
+		m_Model2->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 	if (!result)
 	{
 		return false;
@@ -597,8 +398,9 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 		trunk->Render(m_D3D->GetDeviceContext());
 
 		// Render the model using the light shader.
-		result = m_ShadowShader->Render(m_D3D->GetDeviceContext(), trunk->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-			lightViewMatrix, lightProjectionMatrix, trunk->GetTexture(), m_RenderTexture->GetShaderResourceView(), m_Light->GetPosition(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
+		result = m_LightShader->Render(m_D3D->GetDeviceContext(), trunk->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+			m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
+			trunk->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 		if (!result)
 		{
 			return false;
@@ -609,8 +411,9 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 		leaves->Render(m_D3D->GetDeviceContext());
 
 		// Render the model using the light shader.
-		result = m_ShadowShader->Render(m_D3D->GetDeviceContext(), leaves->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-			lightViewMatrix, lightProjectionMatrix, leaves->GetTexture(), m_RenderTexture->GetShaderResourceView(), m_Light->GetPosition(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
+		result = m_LightShader->Render(m_D3D->GetDeviceContext(), leaves->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+			m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
+			leaves->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 		if (!result)
 		{
 			return false;

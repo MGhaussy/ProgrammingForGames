@@ -55,9 +55,6 @@ public:
 	void TurnOnCulling();
 	void TurnOffCulling();
 
-	void SetBackBufferRenderTarget();
-	void ResetViewport();
-
 private:
 	bool m_vsync_enabled;
 	int m_videoCardMemory;
@@ -77,7 +74,6 @@ private:
 	ID3D11DepthStencilState* m_depthDisabledStencilState;
 	ID3D11BlendState* m_alphaEnableBlendingState;
 	ID3D11BlendState* m_alphaDisableBlendingState;
-	D3D11_VIEWPORT m_viewport;
 };
 
 #endif
