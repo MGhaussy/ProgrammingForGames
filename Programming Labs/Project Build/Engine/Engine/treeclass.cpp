@@ -32,7 +32,7 @@ bool TreeClass::Initialize(ID3D11Device* device, HWND hwnd, float x, float y, fl
 	}
 
 	// Initialize the trunk object.
-	result = m_Trunk->Initialize(device, "../Engine/data/Tree_Trunk.txt", L"../Engine/data/bark_0021.jpg");
+	result = m_Trunk->Initialize(device, "../Engine/data/Tree_Trunk.txt", L"../Engine/data/bark_0021.jpg", L"../Engine/data/barkN.png");
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -48,7 +48,7 @@ bool TreeClass::Initialize(ID3D11Device* device, HWND hwnd, float x, float y, fl
 	}
 
 	// Initialize the leaves object.
-	result = m_Leaves->Initialize(device, "../Engine/data/Tree_Leaves.txt", L"../Engine/data/Leaf_UV.jpg");
+	result = m_Leaves->Initialize(device, "../Engine/data/Tree_Leaves.txt", L"../Engine/data/Leaf_UV.jpg", L"../Engine/data/leavesN.png");
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);

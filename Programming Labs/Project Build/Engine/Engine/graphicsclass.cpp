@@ -66,7 +66,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), "../Engine/data/floor.txt", L"../Engine/data/forestfloor.jpg");
+	result = m_Model->Initialize(m_D3D->GetDevice(), "../Engine/data/floor.txt", L"../Engine/data/forestfloor.jpg", L"../Engine/data/forestfloorN.png");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -82,7 +82,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 	
 	// Initialize the model object.
-	result = m_Model2->Initialize(m_D3D->GetDevice(), "../Engine/data/wall.txt", L"../Engine/data/wall.jpg");
+	result = m_Model2->Initialize(m_D3D->GetDevice(), "../Engine/data/wall.txt", L"../Engine/data/wall.jpg", L"../Engine/data/wallN.png");
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -142,7 +142,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the sky dome object.
-	result = m_SkyDome->Initialize(m_D3D->GetDevice(), "../Engine/data/skydome.txt", L"../Engine/data/SunSet/SunSetFront2048.png");
+	result = m_SkyDome->Initialize(m_D3D->GetDevice(), "../Engine/data/skydome.txt", L"../Engine/data/SunSet/SunSetFront2048.png", L"../Engine/data/skydomeN.png");
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the sky dome object.", L"Error", MB_OK);
@@ -279,7 +279,7 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 
 
 	// Clear the buffers to begin the scene.
-	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	m_D3D->BeginScene(0.16078f, 0.18039f, 0.19608f, 1.0f);
 
 	// Generate the view matrix based on the camera's position.
 	m_Camera->Render();
@@ -345,6 +345,7 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Model2->Render(m_D3D->GetDeviceContext());
 
+	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	// Render the model using the light shader.
 	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
 		m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
@@ -353,6 +354,7 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 	{
 		return false;
 	}
+	m_Light->SetSpecularColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	//ModelClass* trunk = m_Tree->GetTrunk();
 	//D3DXVECTOR3 tempvec3 = trunk->GetPosition();
