@@ -13,8 +13,8 @@ GraphicsClass::GraphicsClass()
 	m_LightShader = 0;
 	m_Light = 0;
 	m_SkyDome = 0;
-	m_Tree = 0;
 	m_Trees = {};
+	m_Trees2 = {};
 }
 
 
@@ -90,21 +90,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 	m_Model2->SetPosition(0.0f, -1.0f, 20.0f);
 
-	// Create the tree object.
-	m_Tree = new TreeClass;
-	if (!m_Tree)
-	{
-		return false;
-	}
-
-	// Initialize the model object.
-	result = m_Tree->Initialize(m_D3D->GetDevice(), hwnd, 2.0f, -1.0f, 2.0f);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the tree object.", L"Error", MB_OK);
-		return false;
-	}
-
 	// Create the light shader object.
 	m_LightShader = new LightShaderClass;
 	if(!m_LightShader)
@@ -149,12 +134,27 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 	
-	// Initialize the tree list.
+	// Initialize the first tree list.
 	for (int i = 0; i < 20; i++)
 	{
 		TreeClass* tree = new TreeClass;
 		m_Trees.push_back(tree);
-		result = tree->Initialize(m_D3D->GetDevice(), hwnd, i, 0.0f, i % 5);
+		float x = (float) (cos((18 * i) * 3.1415926 / 180));
+		float z = (float) (sin((18 * i) * 3.1415926 / 180));
+		result = tree->Initialize(m_D3D->GetDevice(), hwnd, (i + 1) * x, 0.0f, (i + 1) * z);
+		if (!result)
+		{
+			MessageBox(hwnd, L"Could not initialize the tree object.", L"Error", MB_OK);
+			return false;
+		}
+	}
+
+	// Initialize the second tree list.
+	for (int i = 0; i < 50; i++)
+	{
+		TreeClass* tree = new TreeClass;
+		m_Trees2.push_back(tree);
+		result = tree->Initialize(m_D3D->GetDevice(), hwnd, (i % 10) - 5.0f, 0.0f, (i / 2) - 5.0f);
 		if (!result)
 		{
 			MessageBox(hwnd, L"Could not initialize the tree object.", L"Error", MB_OK);
@@ -207,14 +207,6 @@ void GraphicsClass::Shutdown()
 		m_Model2 = 0;
 	}
 
-	// Release the tree object.
-	if (m_Tree)
-	{
-		m_Tree->Shutdown();
-		delete m_Tree;
-		m_Tree = 0;
-	}
-
 	// Release the camera object.
 	if(m_Camera)
 	{
@@ -233,6 +225,10 @@ void GraphicsClass::Shutdown()
 	// Releases the tree list.
 	m_Trees.clear();
 	m_Trees = {};
+
+	// Releases the second tree list.
+	m_Trees2.clear();
+	m_Trees2 = {};
 	
 	return;
 }
@@ -317,9 +313,6 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 	// Reset the world matrix.
 	m_D3D->GetWorldMatrix(worldMatrix);
 
-	// Rotate the world matrix by the rotation value so that the triangle will spin.
-	// D3DXMatrixRotationYawPitchRoll(&worldMatrix, rotation, rotation, rotation);
-
 	D3DXVECTOR3 tempvec = m_Model->GetPosition();
 	xPos = tempvec.x;
 	yPos = tempvec.y;
@@ -356,38 +349,42 @@ bool GraphicsClass::Render(float rotation, float deltavalue)
 	}
 	m_Light->SetSpecularColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	//ModelClass* trunk = m_Tree->GetTrunk();
-	//D3DXVECTOR3 tempvec3 = trunk->GetPosition();
-	//xPos = tempvec3.x;
-	//yPos = tempvec3.y;
-	//zPos = tempvec3.z;
-	//D3DXMatrixTranslation(&worldMatrix, xPos, yPos, zPos);
-	//// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	//trunk->Render(m_D3D->GetDeviceContext());
-
-	//// Render the model using the light shader.
-	//result = m_LightShader->Render(m_D3D->GetDeviceContext(), trunk->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-	//	m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
-	//	trunk->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
-	//if (!result)
-	//{
-	//	return false;
-	//}
-
-	//ModelClass* leaves = m_Tree->GetLeaves();
-	//// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	//leaves->Render(m_D3D->GetDeviceContext());
-
-	//// Render the model using the light shader.
-	//result = m_LightShader->Render(m_D3D->GetDeviceContext(), leaves->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-	//	m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
-	//	leaves->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
-	/*if (!result)
-	{
-		return false;
-	}*/
-
 	for (std::list<TreeClass*>::iterator it=m_Trees.begin(); it != m_Trees.end(); ++it)
+	{
+		TreeClass* tree = *it;
+		ModelClass* trunk = tree->GetTrunk();
+		D3DXVECTOR3 tempvec3 = trunk->GetPosition();
+		xPos = tempvec3.x;
+		yPos = tempvec3.y;
+		zPos = tempvec3.z;
+		D3DXMatrixTranslation(&worldMatrix, xPos, yPos, zPos);
+		// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+		trunk->Render(m_D3D->GetDeviceContext());
+
+		// Render the model using the light shader.
+		result = m_LightShader->Render(m_D3D->GetDeviceContext(), trunk->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+			m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
+			trunk->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+		if (!result)
+		{
+			return false;
+		}
+
+		ModelClass* leaves = tree->GetLeaves();
+		// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+		leaves->Render(m_D3D->GetDeviceContext());
+
+		// Render the model using the light shader.
+		result = m_LightShader->Render(m_D3D->GetDeviceContext(), leaves->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+			m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Light->GetAmbientColor(), deltavalue,
+			leaves->GetTexture(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+		if (!result)
+		{
+			return false;
+		}
+	}
+
+	for (std::list<TreeClass*>::iterator it = m_Trees2.begin(); it != m_Trees2.end(); ++it)
 	{
 		TreeClass* tree = *it;
 		ModelClass* trunk = tree->GetTrunk();

@@ -27,7 +27,6 @@ public:
 
 	bool Initialize(ID3D11Device*, HWND hwnd, float x, float y, float z);
 	void Shutdown();
-	void Render(ID3D11DeviceContext* deviceContext);
 
 	ModelClass* GetTrunk();
 	ModelClass* GetLeaves();

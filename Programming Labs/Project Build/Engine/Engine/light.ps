@@ -65,10 +65,6 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	
     // Normalize the resulting bump normal.
     bumpNormal = normalize(bumpNormal);
-
-	// Set the color of the fog to grey.
-    fogColor = float4(0.16078f, 0.18039f, 0.19608f, 0.0f);
-	textureColor = input.fogFactor * textureColor + (1.0f - input.fogFactor) * fogColor;
 	
 	color = ambientColor;
 
@@ -97,6 +93,10 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 
     // Determine the final amount of diffuse color based on the diffuse color combined with the light intensity.
     color += saturate(diffuseColor * lightIntensity / 2);
+
+	// Set the color of the fog to grey.
+    fogColor = float4(0.16078f, 0.18039f, 0.19608f, 0.0f);
+	textureColor = input.fogFactor * textureColor + (1.0f - input.fogFactor) * fogColor;
 
 	// Multiply the texture pixel and the final diffuse color to get the final pixel color result.
 	color = color * textureColor;

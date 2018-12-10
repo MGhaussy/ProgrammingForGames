@@ -76,13 +76,6 @@ void TreeClass::Shutdown()
 	}
 }
 
-void TreeClass::Render(ID3D11DeviceContext* deviceContext)
-{
-	m_Trunk->Render(deviceContext);
-	m_Leaves->Render(deviceContext);
-}
-
-
 ModelClass* TreeClass::GetTrunk()
 {
 	return m_Trunk;

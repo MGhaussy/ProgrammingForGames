@@ -55,6 +55,5 @@ c:\program files (x86)\microsoft directx sdk (june 2010)\include\d3d10.h(608): w
   c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\winerror.h(54094): note: see previous definition of 'D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS'
 c:\program files (x86)\microsoft directx sdk (june 2010)\include\d3d10.h(609): warning C4005: 'D3D10_ERROR_FILE_NOT_FOUND': macro redefinition
   c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\winerror.h(54103): note: see previous definition of 'D3D10_ERROR_FILE_NOT_FOUND'
-m:\github\programmingforgames\programming labs\project build\engine\engine\graphicsclass.cpp(157): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-m:\github\programmingforgames\programming labs\project build\engine\engine\graphicsclass.cpp(256): warning C4305: '+=': truncation from 'double' to 'float'
-  Engine.vcxproj -> M:\GitHub\ProgrammingForGames\Programming Labs\Project Build\Engine\Debug\Engine.exe
+c:\users\micha\documents\github\programmingforgames\programming labs\project build\engine\engine\graphicsclass.cpp(252): warning C4305: '+=': truncation from 'double' to 'float'
+  Engine.vcxproj -> C:\Users\micha\Documents\GitHub\ProgrammingForGames\Programming Labs\Project Build\Engine\Debug\Engine.exe

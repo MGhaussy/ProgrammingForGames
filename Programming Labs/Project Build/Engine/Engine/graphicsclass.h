@@ -14,6 +14,7 @@
 #include "lightshaderclass.h"
 #include "lightclass.h"
 #include "treeclass.h"
+#include <d3dx10math.h>
 #include <math.h>
 #include <list>
 
@@ -52,8 +53,8 @@ private:
 	LightShaderClass* m_LightShader;
 	LightClass* m_Light;
 	ModelClass* m_SkyDome;
-	TreeClass* m_Tree;
 	list<TreeClass*> m_Trees;
+	list<TreeClass*> m_Trees2;
 };
 
 #endif
